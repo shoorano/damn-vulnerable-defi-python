@@ -26,19 +26,14 @@ class UnstoppableChecker():
         """runs setup, exploit and test_exploit, results are logged by respective classes"""
         self.setup()
         self.test_contract_pre_exploit()
-        print(f"pool balance: {self.token.balanceOf(self.pool.address)}")
-        print(f"token balance: {self.token.balanceOf(self.token.address)}")
         self.exploit()
-        print(f"pool balance: {self.token.balanceOf(self.pool.address)}")
-        print(f"token balance: {self.token.balanceOf(self.token.address)}")
         self.test_contract_post_exploit()
 
     def setup(self):
-        """setup: tbd"""
+        """performs required deployments and token transfers prior to running the exploit"""
         self.token.approve(self.pool.address, self.TOKENS_IN_POOL, {"from": self.deployer})
         self.pool.depositTokens(self.TOKENS_IN_POOL, {"from": self.deployer})
         self.token.transfer(self.attacker, self.INITIAL_ATTACKER_BALANCE, {"from": self.deployer})
-
         print(f"Setup Check 1 passed: {self.token.balanceOf(self.pool.address) == self.TOKENS_IN_POOL}")
         print(f"Setup Check 2 passed: {self.token.balanceOf(self.attacker) == self.INITIAL_ATTACKER_BALANCE}")
 
